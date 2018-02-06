@@ -1,15 +1,23 @@
+#include <iostream>
 #include "mongoose.h"
 
 static const char *s_http_port = "8000";
 
+
+
 static void ev_handler(struct mg_connection *c, int ev, void *p) {
    if (ev == MG_EV_HTTP_REQUEST) {
       struct http_message *hm = (struct http_message *) p;
+      std::string method(hm->method.p);
+      method.erase(std::begin(method) + hm->method.len, std::end(method));
 
+      std::cout<<"My method print: "<<method<<" End my message"<<std::endl;
       // We have received an HTTP request. Parsed request is contained in `hm`.
       // Send HTTP reply to the client which shows full original request.
-      mg_send_head(c, 200, hm->message.len, "Content-Type: text/plain");
-      mg_printf(c, "%.*s", (int)hm->message.len, hm->message.p);
+     mg_send_head(c, 200, hm->message.len, "Content-Type: text/plain");
+      mg_send(c, hm->message.p, (int)hm->message.len);
+
+//      mg_printf(c, "%.*s", (int)hm->message.len, hm->message.p);
    }
 }
 
